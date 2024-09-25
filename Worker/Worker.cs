@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Worker;
 
 public class Worker : BackgroundService
@@ -5,6 +7,7 @@ public class Worker : BackgroundService
     private readonly ILogger<Worker> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
+    public static ActivitySource Source = new("net.otelsample.worker");
 
     public Worker(ILogger<Worker> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
@@ -17,6 +20,8 @@ public class Worker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
+            using var activity = Source.StartActivity("Worker.ExecuteAsync", ActivityKind.Client);
+            
             var apiUrl = _configuration.GetValue<string>("API_URL")!;
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(apiUrl);

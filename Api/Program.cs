@@ -1,12 +1,36 @@
 
+using OpenTelemetry;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
+Action<OtlpExporterOptions> otlExporterOptions = opt =>
+{
+    opt.Endpoint = new Uri(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]!);
+    opt.ExportProcessorType = ExportProcessorType.Batch;
+    opt.Protocol = OtlpExportProtocol.Grpc;
+};
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("otel-testing-api"))
+    .WithMetrics(metrics => metrics.AddHttpClientInstrumentation())
+    .WithTracing(tracing => tracing.SetErrorStatusOnException().AddHttpClientInstrumentation());
+
+builder.Services.ConfigureOpenTelemetryMeterProvider(metrics =>
+{
+    metrics.AddAspNetCoreInstrumentation();
+    metrics.AddOtlpExporter(otlExporterOptions);
+}).ConfigureOpenTelemetryTracerProvider(traces =>
+{
+    traces.AddAspNetCoreInstrumentation();
+    traces.AddOtlpExporter(otlExporterOptions);
+});
+
 
 var app = builder.Build();
-
 var random = new Random();
 
 app.MapPost("/dosomething", async () =>

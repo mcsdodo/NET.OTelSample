@@ -7,7 +7,8 @@
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
         "API_URL" : "http://localhost:5022",
-        "WORKER_FREQUENCY_IN_SECONDS" : 10
+        "WORKER_FREQUENCY_IN_SECONDS" : "10",
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317"
       }
     }
   }

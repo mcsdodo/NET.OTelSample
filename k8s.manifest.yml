@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-api-worker-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-api-worker
+  template:
+    metadata:
+      labels:
+        app: otel-api-worker
+    spec:
+      containers:
+      - name: otel-testing-api
+        image: otel-testing-api
+        ports:
+        - containerPort: 8080
+      - name: otel-testing-worker
+        image: otel-testing-worker
+        env:
+        - name: API_URL
+          value: "http://api:8080"
+        - name: WORKER_FREQUENCY_IN_SECONDS
+          value: "10"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-api-service
+spec:
+  selector:
+    app: otel-api-worker
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080

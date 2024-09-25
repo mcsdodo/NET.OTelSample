@@ -1,0 +1,16 @@
+﻿services:
+  api: 
+    image: otel-testing-api
+    build:
+      context: .
+      dockerfile: Api/Dockerfile
+  worker:
+    image: otel-testing-worker
+    build:
+      context: .
+      dockerfile: Worker/Dockerfile
+    depends_on: 
+      - api
+    environment:
+        - API_URL=http://api:8080
+        - WORKER_FREQUENCY_IN_SECONDS=10

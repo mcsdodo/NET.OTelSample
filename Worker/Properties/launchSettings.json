@@ -1,0 +1,14 @@
+﻿{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "Worker": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
+        "API_URL" : "http://localhost:5022",
+        "WORKER_FREQUENCY_IN_SECONDS" : 10
+      }
+    }
+  }
+}
